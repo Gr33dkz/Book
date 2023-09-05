@@ -3,14 +3,35 @@ package http
 import (
 	"book/data"
 	"book/pkg"
-	repo "book/repository"
+	"book/service"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
 
-func HandleBooks(w http.ResponseWriter, r *http.Request) {
+type Handler struct {
+	service service.Service
+}
+
+func NewHandler(srv service.Service) *Handler {
+
+	return &Handler{
+		service: srv,
+	}
+
+}
+
+func (h *Handler) Register() *http.ServeMux {
+	mux := http.NewServeMux()
+	prefix := "/book"
+	mux.Handle(prefix+"/", http.StripPrefix(prefix+"/", http.HandlerFunc(h.handleBooksWithId)))
+	mux.Handle(prefix, http.HandlerFunc(h.handleBooks))
+
+	return mux
+}
+
+func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		rbook := data.Book{}
@@ -19,7 +40,7 @@ func HandleBooks(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			pkg.UnmarshallError(w)
 		}
-		err = repo.CreateBook(rbook.Id, rbook)
+		err = h.service.CreateBook(rbook.Id, rbook)
 		if err != nil {
 			pkg.AlreadyExist(w)
 		}
@@ -27,7 +48,7 @@ func HandleBooks(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodGet:
 		var empt []byte
-		books := repo.GetBooks()
+		books := h.service.GetBooks()
 		if len(books) == 0 {
 			_, err := w.Write(empt)
 			if err != nil {
@@ -41,14 +62,14 @@ func HandleBooks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HandleBooksWithId(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path
 	switch r.Method {
 	case http.MethodDelete:
-		repo.DeleteBook(id)
+		h.service.DeleteBook(id)
 		pkg.Accepted(w, http.StatusText(http.StatusOK))
 	case http.MethodGet:
-		b := repo.GetBook(id)
+		b := h.service.GetBook(id)
 		if b == nil {
 			pkg.ResponseWithError(w, http.StatusNotFound, "Not found")
 			return
@@ -62,7 +83,7 @@ func HandleBooksWithId(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			pkg.UnmarshallError(w)
 		}
-		err = repo.UpdateBook(rbook)
+		err = h.service.UpdateBook(rbook)
 		if err != nil {
 			pkg.ResponseWithError(w, http.StatusNotFound, "Not found")
 			return
