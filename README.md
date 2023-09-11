@@ -8,5 +8,5 @@ quantity    INTEGER NOT NULL,
 price       double precision NOT NULL,
 releaseDate DATE NOT NULL,
 description varchar ( 500 ) NOT NULL,
-createdDate timestamp
+createdDate timestamp default current_timestamp
 );

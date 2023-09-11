@@ -9,9 +9,9 @@ import (
 type Service interface {
 	CreateBook(id string, book data.Book) error
 	UpdateBook(book data.Book) error
-	GetBook(id string) *data.Book
+	GetBook(id string) (*data.Book, error)
 	GetBooks() []data.Book
-	DeleteBook(id string)
+	DeleteBook(id string) error
 }
 
 type service struct {
@@ -24,56 +24,33 @@ func New(repo *repository.Repo) Service {
 	}
 }
 
-var Books map[string]data.Book
-
 func (s *service) CreateBook(id string, book data.Book) error {
 	fmt.Println("[SERVICE] CreateBook")
-	s.repo.CreateBook(id, book)
-	//_, exists := Books[id]
-	//if exists {
-	//	return errors.New("book already exists")
-	//}
-	//Books[id] = book
+	err := s.repo.CreateBook(id, book)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (s *service) UpdateBook(book data.Book) error {
 	fmt.Println("[SERVICE] UpdateBook")
-	//oldBook, exists := Books[book.Id]
-	//if !exists {
-	//	return errors.New("book not found")
-	//}
-	//oldBook.Price = book.Price
-	//oldBook.Description = book.Description
-	//oldBook.ReleaseDate = book.ReleaseDate
-	//oldBook.Author = book.Author
-	//oldBook.Quantity = book.Quantity
-	//Books[book.Id] = oldBook
-	return nil
+	err := s.repo.UpdateBook(book)
+	return err
 }
 
-func (s *service) GetBook(id string) *data.Book {
+func (s *service) GetBook(id string) (*data.Book, error) {
 	fmt.Println("[SERVICE] GetBook")
-	//book, exists := Books[id]
-	//if !exists {
-	//	return nil
-	//}
-	//return &book
-	return nil
+	book, err := s.repo.GetBook(id)
+	return book, err
 }
 
 func (s *service) GetBooks() []data.Book {
-	fmt.Println("[SERVICE] GetBooks")
-	//b := make([]data.Book, 0)
-	//for _, v := range Books {
-	//	b = append(b, v)
-	//}
-	//
-	//return b
-	return nil
+	books := s.repo.GetBooks()
+	return books
 }
 
-func (s *service) DeleteBook(id string) {
-	fmt.Println("[SERVICE] GetBooks")
-	//delete(Books, id)
+func (s *service) DeleteBook(id string) error {
+	err := s.repo.DeleteBook(id)
+	return err
 }

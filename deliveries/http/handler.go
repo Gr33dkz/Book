@@ -66,12 +66,15 @@ func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path
 	switch r.Method {
 	case http.MethodDelete:
-		h.service.DeleteBook(id)
+		err := h.service.DeleteBook(id)
+		if err != nil {
+			pkg.ResponseWithError(w, http.StatusBadRequest, "DELETE ERROR") // TODO Создать Структуру Ошибки и пробрасывать сообщения
+		}
 		pkg.Accepted(w, http.StatusText(http.StatusOK))
 	case http.MethodGet:
-		b := h.service.GetBook(id)
-		if b == nil {
-			pkg.ResponseWithError(w, http.StatusNotFound, "Not found")
+		b, err := h.service.GetBook(id)
+		if err != nil {
+			pkg.ResponseWithError(w, http.StatusNotFound, "Not found") // TODO Создать Структуру Ошибки и пробрасывать сообщения
 			return
 		}
 		pkg.Response(w, b)
@@ -83,6 +86,7 @@ func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			pkg.UnmarshallError(w)
 		}
+		rbook.Id = id
 		err = h.service.UpdateBook(rbook)
 		if err != nil {
 			pkg.ResponseWithError(w, http.StatusNotFound, "Not found")

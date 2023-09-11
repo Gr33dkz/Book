@@ -26,15 +26,6 @@ func main() {
 	handler := d.NewHandler(srv)
 	mux := handler.Register()
 
-	//defaultBook := data.Book{
-	//	Id:          "111",
-	//	Author:      "Tolkien",
-	//	Quantity:    4,
-	//	Price:       111.11,
-	//	ReleaseDate: "1990",
-	//	Description: "Classic",
-	//}
-
 	err = http.ListenAndServe(":8080", mux)
 	if err != nil {
 		log.Fatal("SERVER INIT ERROR")
