@@ -9,4 +9,5 @@ type Book struct {
 	Price       float64   `json:"price"`
 	ReleaseDate time.Time `json:"releaseDate"`
 	Description string    `json:"description"`
+	CreatedDate time.Time `json:"createdDate"`
 }
