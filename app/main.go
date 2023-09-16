@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=postgres sslmode=disable password=admin")
+	db, err := sql.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=postgres sslmode=disable password=postgres")
 	if err != nil {
 		fmt.Println("CONNECTION TO DB ERROR", err)
 	}
