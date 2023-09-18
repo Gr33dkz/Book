@@ -1,9 +1,9 @@
-package http
+package v1
 
 import (
-	"book/data"
+	http2 "book/internal/deliveries/http"
+	"book/internal/service"
 	"book/pkg"
-	"book/service"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -34,17 +34,19 @@ func (h *Handler) Register() *http.ServeMux {
 func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		rbook := data.Book{}
+		rbook := pkg.Book{}
 		bytes, err := readBody(r)
 		err = json.Unmarshal(bytes, &rbook)
 		if err != nil {
-			pkg.UnmarshallError(w)
+			http2.UnmarshallError(w)
+			return
 		}
 		err = h.service.CreateBook(rbook.Id, rbook)
 		if err != nil {
-			pkg.AlreadyExist(w)
+			http2.AlreadyExist(w)
+			return
 		}
-		pkg.Accepted(w, "")
+		http2.Accepted(w, "")
 
 	case http.MethodGet:
 		var empt []byte
@@ -55,10 +57,10 @@ func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
 				fmt.Println("error")
 			}
 		}
-		pkg.Response(w, books)
+		http2.Response(w, books)
 
 	default:
-		pkg.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
+		http2.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
 	}
 }
 
@@ -68,33 +70,34 @@ func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		err := h.service.DeleteBook(id)
 		if err != nil {
-			pkg.ResponseWithError(w, http.StatusBadRequest, "DELETE ERROR") // TODO Создать Структуру Ошибки и пробрасывать сообщения
+			http2.ResponseWithError(w, http.StatusBadRequest, "DELETE ERROR") // TODO Создать Структуру Ошибки и пробрасывать сообщения
 		}
-		pkg.Accepted(w, http.StatusText(http.StatusOK))
+		http2.Accepted(w, http.StatusText(http.StatusOK))
 	case http.MethodGet:
 		b, err := h.service.GetBook(id)
 		if err != nil {
-			pkg.ResponseWithError(w, http.StatusNotFound, "Not found") // TODO Создать Структуру Ошибки и пробрасывать сообщения
+			http2.ResponseWithError(w, http.StatusNotFound, "Not found") // TODO Создать Структуру Ошибки и пробрасывать сообщения
 			return
 		}
-		pkg.Response(w, b)
+		http2.Response(w, b)
 
 	case http.MethodPut:
-		rbook := data.Book{}
+		rbook := pkg.Book{}
 		bytes, err := readBody(r)
 		err = json.Unmarshal(bytes, &rbook)
 		if err != nil {
-			pkg.UnmarshallError(w)
+			http2.UnmarshallError(w)
+			return
 		}
 		rbook.Id = id
 		err = h.service.UpdateBook(rbook)
 		if err != nil {
-			pkg.ResponseWithError(w, http.StatusNotFound, "Not found")
+			http2.ResponseWithError(w, http.StatusNotFound, "Not found")
 			return
 		}
-		pkg.Accepted(w, http.StatusText(http.StatusOK))
+		http2.Accepted(w, http.StatusText(http.StatusOK))
 	default:
-		pkg.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
+		http2.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
 	}
 }
 
