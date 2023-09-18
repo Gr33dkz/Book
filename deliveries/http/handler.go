@@ -39,10 +39,12 @@ func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(bytes, &rbook)
 		if err != nil {
 			pkg.UnmarshallError(w)
+			return
 		}
 		err = h.service.CreateBook(rbook.Id, rbook)
 		if err != nil {
 			pkg.AlreadyExist(w)
+			return
 		}
 		pkg.Accepted(w, "")
 
@@ -85,6 +87,7 @@ func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(bytes, &rbook)
 		if err != nil {
 			pkg.UnmarshallError(w)
+			return
 		}
 		rbook.Id = id
 		err = h.service.UpdateBook(rbook)

@@ -3,6 +3,7 @@ package repository
 import (
 	"book/data"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -18,6 +19,10 @@ func NewRepo(db *sql.DB) *Repo {
 }
 
 func (r *Repo) CreateBook(id string, book data.Book) error {
+	exists := r.isExists(id)
+	if exists {
+		return errors.New("record exists")
+	}
 	sqlCreateBook := `
 INSERT INTO book (id, author, quantity, price, releasedate, description)
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -84,4 +89,15 @@ func (r *Repo) DeleteBook(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (r *Repo) isExists(id string) bool {
+	query := `SELECT id FROM book WHERE id=$1`
+	var idDb string
+	row := r.db.QueryRow(query, id)
+	err := row.Scan(&idDb)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false
+	}
+	return true
 }
