@@ -1,9 +1,9 @@
 package main
 
 import (
-	d "book/deliveries/http"
-	"book/repository"
-	"book/service"
+	d "book/internal/deliveries/http/v1"
+	"book/internal/repository"
+	"book/internal/service"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
@@ -34,3 +34,5 @@ func main() {
 	}
 
 }
+
+// TODO ADD ALL DEFINIONS IN RUN FILE

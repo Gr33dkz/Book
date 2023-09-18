@@ -1,16 +1,16 @@
 package service
 
 import (
-	"book/data"
-	"book/repository"
+	"book/internal/repository"
+	"book/pkg"
 	"fmt"
 )
 
 type Service interface {
-	CreateBook(id string, book data.Book) error
-	UpdateBook(book data.Book) error
-	GetBook(id string) (*data.Book, error)
-	GetBooks() []data.Book
+	CreateBook(id string, book pkg.Book) error
+	UpdateBook(book pkg.Book) error
+	GetBook(id string) (*pkg.Book, error)
+	GetBooks() []pkg.Book
 	DeleteBook(id string) error
 }
 
@@ -24,7 +24,7 @@ func New(repo *repository.Repo) Service {
 	}
 }
 
-func (s *service) CreateBook(id string, book data.Book) error {
+func (s *service) CreateBook(id string, book pkg.Book) error {
 	fmt.Println("[SERVICE] CreateBook")
 	err := s.repo.CreateBook(id, book)
 	if err != nil {
@@ -33,19 +33,19 @@ func (s *service) CreateBook(id string, book data.Book) error {
 	return nil
 }
 
-func (s *service) UpdateBook(book data.Book) error {
+func (s *service) UpdateBook(book pkg.Book) error {
 	fmt.Println("[SERVICE] UpdateBook")
 	err := s.repo.UpdateBook(book)
 	return err
 }
 
-func (s *service) GetBook(id string) (*data.Book, error) {
+func (s *service) GetBook(id string) (*pkg.Book, error) {
 	fmt.Println("[SERVICE] GetBook")
 	book, err := s.repo.GetBook(id)
 	return book, err
 }
 
-func (s *service) GetBooks() []data.Book {
+func (s *service) GetBooks() []pkg.Book {
 	books := s.repo.GetBooks()
 	return books
 }

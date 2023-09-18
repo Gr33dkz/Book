@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"book/data"
+	"book/pkg"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -18,7 +18,7 @@ func NewRepo(db *sql.DB) *Repo {
 	}
 }
 
-func (r *Repo) CreateBook(id string, book data.Book) error {
+func (r *Repo) CreateBook(id string, book pkg.Book) error {
 	exists := r.isExists(id)
 	if exists {
 		return errors.New("record exists")
@@ -36,7 +36,7 @@ VALUES ($1, $2, $3, $4, $5, $6)
 	return nil
 }
 
-func (r *Repo) UpdateBook(book data.Book) error {
+func (r *Repo) UpdateBook(book pkg.Book) error {
 	stmnt := `update "book" set "author"=$1, "quantity"=$2, "price"=$3, "releasedate"=$4, "description"=$5 where "id"=$6`
 	_, err := r.db.Exec(stmnt, book.Author, book.Quantity, book.Price, book.ReleaseDate, book.Description, book.Id)
 	if err != nil {
@@ -46,10 +46,10 @@ func (r *Repo) UpdateBook(book data.Book) error {
 	return nil
 }
 
-func (r *Repo) GetBook(id string) (*data.Book, error) {
+func (r *Repo) GetBook(id string) (*pkg.Book, error) {
 	stmt := `SELECT id, author, quantity, price, releasedate, description, createddate FROM book WHERE id = $1`
 	row := r.db.QueryRow(stmt, id)
-	book := &data.Book{}
+	book := &pkg.Book{}
 
 	err := row.Scan(&book.Id, &book.Author, &book.Quantity, &book.Price, &book.ReleaseDate, &book.Description, &book.CreatedDate)
 	if err != nil {
@@ -59,17 +59,17 @@ func (r *Repo) GetBook(id string) (*data.Book, error) {
 	return book, nil
 }
 
-func (r *Repo) GetBooks() []data.Book {
+func (r *Repo) GetBooks() []pkg.Book {
 	sqlGetBooks := `SELECT * FROM book`
 	rows, err := r.db.Query(sqlGetBooks)
 	if err != nil {
 		fmt.Println("QUERY ERROR", err)
 	}
 	defer rows.Close()
-	books := make([]data.Book, 0)
+	books := make([]pkg.Book, 0)
 
 	for rows.Next() {
-		book := data.Book{}
+		book := pkg.Book{}
 		err := rows.Scan(&book.Id, &book.Author, &book.Quantity, &book.Price, &book.ReleaseDate, &book.Description, &book.CreatedDate)
 		if err != nil {
 			fmt.Println("SCAN ERROR", err)
