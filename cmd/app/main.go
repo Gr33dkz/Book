@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 )
@@ -27,10 +28,11 @@ func main() {
 	srv := service.New(st)
 	handler := d.NewHandler(srv)
 	mux := handler.Register()
+	hh := cors.AllowAll().Handler(mux)
 
-	err = http.ListenAndServe(":8080", mux) // TODO ADD LOGGER
+	err = http.ListenAndServe(":8080", hh) // TODO ADD LOGGER
 	if err != nil {
-		log.Fatal("SERVER INIT ERROR") // TODO ADD LOGGER
+		log.Fatal("SERVER INIT ERROR", err) // TODO ADD LOGGER
 	}
 
 }

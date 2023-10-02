@@ -7,8 +7,8 @@ import (
 )
 
 type Service interface {
-	CreateBook(id string, book pkg.Book) error
-	UpdateBook(book pkg.Book) error
+	CreateBook(id string, book pkg.BookDTO) error
+	UpdateBook(id string, book pkg.BookDTO) error
 	GetBook(id string) (*pkg.Book, error)
 	GetBooks() []pkg.Book
 	DeleteBook(id string) error
@@ -24,7 +24,7 @@ func New(repo *repository.Repo) Service {
 	}
 }
 
-func (s *service) CreateBook(id string, book pkg.Book) error {
+func (s *service) CreateBook(id string, book pkg.BookDTO) error {
 	fmt.Println("[SERVICE] CreateBook")
 	err := s.repo.CreateBook(id, book)
 	if err != nil {
@@ -33,9 +33,9 @@ func (s *service) CreateBook(id string, book pkg.Book) error {
 	return nil
 }
 
-func (s *service) UpdateBook(book pkg.Book) error {
+func (s *service) UpdateBook(id string, book pkg.BookDTO) error {
 	fmt.Println("[SERVICE] UpdateBook")
-	err := s.repo.UpdateBook(book)
+	err := s.repo.UpdateBook(id, book)
 	return err
 }
 

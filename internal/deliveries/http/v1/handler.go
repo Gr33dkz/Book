@@ -1,11 +1,14 @@
 package v1
 
 import (
-	http2 "book/internal/deliveries/http"
+	_ "book/docs"
+	data "book/internal/deliveries/http"
 	"book/internal/service"
 	"book/pkg"
 	"encoding/json"
 	"fmt"
+	//_ "github.com/go-chi/chi"
+	//_ "github.com/swaggo/http-swagger/v2"
 	"io"
 	"net/http"
 )
@@ -22,6 +25,16 @@ func NewHandler(srv service.Service) *Handler {
 
 }
 
+// @Summary Create Book
+// @Tags CRUD
+// @Description Endpoint to CREATE book
+// @Accept json
+// @Produce json
+// @Param input body pkg.BookDTO true "using pkg.BookDTO"
+// @Response 200 object http.AcceptedResp "Response entity"
+// @Failure 400 object http.ErrorMessage "Unmarshall error"
+// @Failure 409 object http.ErrorMessage ""Already exists error"
+// @Router /book [post]
 func (h *Handler) Register() *http.ServeMux {
 	mux := http.NewServeMux()
 	prefix := "/book"
@@ -31,22 +44,29 @@ func (h *Handler) Register() *http.ServeMux {
 	return mux
 }
 
+// @Summary Get Books
+// @Tags CRUD
+// @Description Endpoint to GET-ALL books
+// @Accept json
+// @Produce json
+// @Response 200 object pkg.Book "Response entity"
+// @Router /book [get]
 func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		rbook := pkg.Book{}
+		rbook := pkg.BookDTO{}
 		bytes, err := readBody(r)
 		err = json.Unmarshal(bytes, &rbook)
 		if err != nil {
-			http2.UnmarshallError(w)
+			data.UnmarshallError(w)
 			return
 		}
-		err = h.service.CreateBook(rbook.Id, rbook)
+		err = h.service.CreateBook(data.GenerateId(), rbook)
 		if err != nil {
-			http2.AlreadyExist(w)
+			data.AlreadyExist(w)
 			return
 		}
-		http2.Accepted(w, "")
+		data.Accepted(w, "")
 
 	case http.MethodGet:
 		var empt []byte
@@ -57,50 +77,65 @@ func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
 				fmt.Println("error")
 			}
 		}
-		http2.Response(w, books)
+		data.Response(w, books)
 
 	default:
-		http2.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
+		data.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
 	}
 }
 
+// @Summary Get Book
+// @Tags CRUD
+// @Description Endpoint to GET book by id
+// @Param id path string true "book id"
+// @Accept json
+// @Produce json
+// @Response 200 object pkg.Book "Response entity"
+// @Failure 404 object http.ErrorMessage "Not found"
+// @Router /book/{id} [get]
 func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path
 	switch r.Method {
 	case http.MethodDelete:
 		err := h.service.DeleteBook(id)
 		if err != nil {
-			http2.ResponseWithError(w, http.StatusBadRequest, "DELETE ERROR") // TODO Создать Структуру Ошибки и пробрасывать сообщения
+			data.ResponseWithError(w, http.StatusBadRequest, "DELETE ERROR") // TODO Создать Структуру Ошибки и пробрасывать сообщения
 		}
-		http2.Accepted(w, http.StatusText(http.StatusOK))
+		data.Accepted(w, http.StatusText(http.StatusOK))
 	case http.MethodGet:
 		b, err := h.service.GetBook(id)
 		if err != nil {
-			http2.ResponseWithError(w, http.StatusNotFound, "Not found") // TODO Создать Структуру Ошибки и пробрасывать сообщения
+			data.ResponseWithError(w, http.StatusNotFound, "Not found") // TODO Создать Структуру Ошибки и пробрасывать сообщения
 			return
 		}
-		http2.Response(w, b)
-
+		data.Response(w, b)
 	case http.MethodPut:
-		rbook := pkg.Book{}
+		rbook := pkg.BookDTO{}
 		bytes, err := readBody(r)
 		err = json.Unmarshal(bytes, &rbook)
 		if err != nil {
-			http2.UnmarshallError(w)
+			data.UnmarshallError(w)
 			return
 		}
-		rbook.Id = id
-		err = h.service.UpdateBook(rbook)
+		err = h.service.UpdateBook(id, rbook)
 		if err != nil {
-			http2.ResponseWithError(w, http.StatusNotFound, "Not found")
+			data.ResponseWithError(w, http.StatusNotFound, "Not found")
 			return
 		}
-		http2.Accepted(w, http.StatusText(http.StatusOK))
+		data.Accepted(w, http.StatusText(http.StatusOK))
 	default:
-		http2.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
+		data.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
 	}
 }
 
+// @Summary Delete Book
+// @Tags CRUD
+// @Description Endpoint to DELETE book by id
+// @Param id path string true "book id"
+// @Accept json
+// @Produce json
+// @Response 200 object http.AcceptedResp "Response entity"
+// @Router /book/{id} [delete]
 func readBody(request *http.Request) ([]byte, error) {
 	reqBytes, err := io.ReadAll(request.Body)
 	if err != nil {
@@ -108,3 +143,18 @@ func readBody(request *http.Request) ([]byte, error) {
 	}
 	return reqBytes, nil
 }
+
+// @Summary Update book
+// @Tags CRUD
+// @Description Endpoint to UPDATE book by id
+// @Param id path string true "book id"
+// @Accept json
+// @Produce json
+// @Param input body pkg.BookDTO true "using pkg.BookDTO"
+// @Response 200 object http.AcceptedResp "Response entity"
+// @Failure 400 object http.ErrorMessage "Unmarshall error"
+// @Failure 404 object http.ErrorMessage "Not found"
+// @Router /book/{id} [put]
+func Mock() {
+
+} // TODO DELETE AFTER MOVING TO ANOTHER FRAMEWORK
