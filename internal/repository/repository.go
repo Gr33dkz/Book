@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 )
 
 type Repo struct {
@@ -18,7 +17,7 @@ func NewRepo(db *sql.DB) *Repo {
 	}
 }
 
-func (r *Repo) CreateBook(id string, book pkg.Book) error {
+func (r *Repo) CreateBook(id string, book pkg.BookDTO) error {
 	exists := r.isExists(id)
 	if exists {
 		return errors.New("record exists")
@@ -27,8 +26,7 @@ func (r *Repo) CreateBook(id string, book pkg.Book) error {
 INSERT INTO book (id, author, quantity, price, releasedate, description)
 VALUES ($1, $2, $3, $4, $5, $6)
 `
-	date := time.Now()
-	_, err := r.db.Exec(sqlCreateBook, book.Id, book.Author, book.Quantity, book.Price, date, book.Description)
+	_, err := r.db.Exec(sqlCreateBook, id, book.Author, book.Quantity, book.Price, book.ReleaseDate, book.Description)
 	if err != nil {
 		fmt.Println("DB ERROR", err)
 		return err
@@ -36,9 +34,13 @@ VALUES ($1, $2, $3, $4, $5, $6)
 	return nil
 }
 
-func (r *Repo) UpdateBook(book pkg.Book) error {
+func (r *Repo) UpdateBook(id string, book pkg.BookDTO) error {
+	exists := r.isExists(id)
+	if !exists {
+		return errors.New("not found")
+	}
 	stmnt := `update "book" set "author"=$1, "quantity"=$2, "price"=$3, "releasedate"=$4, "description"=$5 where "id"=$6`
-	_, err := r.db.Exec(stmnt, book.Author, book.Quantity, book.Price, book.ReleaseDate, book.Description, book.Id)
+	_, err := r.db.Exec(stmnt, book.Author, book.Quantity, book.Price, book.ReleaseDate, book.Description, id)
 	if err != nil {
 		fmt.Println("DB UPDATE ERROR", err)
 		return err

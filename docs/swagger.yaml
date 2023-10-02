@@ -1,0 +1,189 @@
+basePath: /
+definitions:
+  http.AcceptedResp:
+    properties:
+      Message:
+        type: string
+      StatusCode:
+        type: integer
+    type: object
+  http.ErrorMessage:
+    properties:
+      ErrorMessage:
+        type: string
+      StatusCode:
+        type: integer
+    type: object
+  pkg.Book:
+    description: book Entity
+    properties:
+      author:
+        type: string
+      createdDate:
+        description: string in UTC format
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      releaseDate:
+        description: string in UTC format
+        type: string
+    type: object
+  pkg.BookDTO:
+    description: Entity to create book
+    properties:
+      author:
+        type: string
+      description:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      releaseDate:
+        description: string in UTC format
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: books@swagger.io
+    name: Book Support
+    url: http://contacturl.com
+  description: This is a simple Books CRUD service
+  license:
+    name: Apache 2.0
+    url: http://www.book.org/licenses/LICENSE-2.0.html
+  termsOfService: https://LinkToTerms.com
+  title: Book
+  version: "1.0"
+paths:
+  /book:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to GET-ALL books
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response entity
+          schema:
+            $ref: '#/definitions/pkg.Book'
+      summary: Get Books
+      tags:
+      - CRUD
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to CREATE book
+      parameters:
+      - description: using pkg.BookDTO
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.BookDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response entity
+          schema:
+            $ref: '#/definitions/http.AcceptedResp'
+        "400":
+          description: Unmarshall error
+          schema:
+            $ref: '#/definitions/http.ErrorMessage'
+        "409":
+          description: Already exists error
+          schema:
+            $ref: '#/definitions/http.ErrorMessage'
+      summary: Create Book
+      tags:
+      - CRUD
+  /book/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Endpoint to DELETE book by id
+      parameters:
+      - description: book id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response entity
+          schema:
+            $ref: '#/definitions/http.AcceptedResp'
+      summary: Delete Book
+      tags:
+      - CRUD
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to GET book by id
+      parameters:
+      - description: book id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response entity
+          schema:
+            $ref: '#/definitions/pkg.Book'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/http.ErrorMessage'
+      summary: Get Book
+      tags:
+      - CRUD
+    put:
+      consumes:
+      - application/json
+      description: Endpoint to UPDATE book by id
+      parameters:
+      - description: book id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: using pkg.BookDTO
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.BookDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response entity
+          schema:
+            $ref: '#/definitions/http.AcceptedResp'
+        "400":
+          description: Unmarshall error
+          schema:
+            $ref: '#/definitions/http.ErrorMessage'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/http.ErrorMessage'
+      summary: Update book
+      tags:
+      - CRUD
+swagger: "2.0"

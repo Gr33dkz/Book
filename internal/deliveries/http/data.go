@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"net/http"
 )
 
@@ -97,4 +98,8 @@ func MarshallError(w http.ResponseWriter) {
 
 func AlreadyExist(w http.ResponseWriter) {
 	ResponseWithError(w, http.StatusConflict, "entity already exists")
+}
+
+func GenerateId() string {
+	return uuid.NewString()
 }
