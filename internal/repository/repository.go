@@ -17,15 +17,14 @@ func NewRepo(db *sql.DB) *Repo {
 	}
 }
 
+var RecordExists = errors.New("record exists")
+
 func (r *Repo) CreateBook(id string, book pkg.BookDTO) error {
 	exists := r.isExists(id)
 	if exists {
-		return errors.New("record exists")
+		return RecordExists
 	}
-	sqlCreateBook := `
-INSERT INTO book (id, author, quantity, price, releasedate, description)
-VALUES ($1, $2, $3, $4, $5, $6)
-`
+	sqlCreateBook := `INSERT INTO book (id, author, quantity, price, releasedate, description)VALUES ($1, $2, $3, $4, $5, $6)`
 	_, err := r.db.Exec(sqlCreateBook, id, book.Author, book.Quantity, book.Price, book.ReleaseDate, book.Description)
 	if err != nil {
 		fmt.Println("DB ERROR", err)
