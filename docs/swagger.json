@@ -1,0 +1,283 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a simple Books CRUD service",
+        "title": "Book",
+        "termsOfService": "https://LinkToTerms.com",
+        "contact": {
+            "name": "Book Support",
+            "url": "http://contacturl.com",
+            "email": "books@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.book.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/book": {
+            "get": {
+                "description": "Endpoint to GET-ALL books",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CRUD"
+                ],
+                "summary": "Get Books",
+                "responses": {
+                    "200": {
+                        "description": "Response entity",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Book"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Endpoint to CREATE book",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CRUD"
+                ],
+                "summary": "Create Book",
+                "parameters": [
+                    {
+                        "description": "using pkg.BookDTO",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.BookDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response entity",
+                        "schema": {
+                            "$ref": "#/definitions/http.AcceptedResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Unmarshall error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorMessage"
+                        }
+                    },
+                    "409": {
+                        "description": "Already exists error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/book/{id}": {
+            "get": {
+                "description": "Endpoint to GET book by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CRUD"
+                ],
+                "summary": "Get Book",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "book id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response entity",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Book"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorMessage"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Endpoint to UPDATE book by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CRUD"
+                ],
+                "summary": "Update book",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "book id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "using pkg.BookDTO",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.BookDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response entity",
+                        "schema": {
+                            "$ref": "#/definitions/http.AcceptedResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Unmarshall error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorMessage"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Endpoint to DELETE book by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CRUD"
+                ],
+                "summary": "Delete Book",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "book id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response entity",
+                        "schema": {
+                            "$ref": "#/definitions/http.AcceptedResp"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "http.AcceptedResp": {
+            "type": "object",
+            "properties": {
+                "Message": {
+                    "type": "string"
+                },
+                "StatusCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.ErrorMessage": {
+            "type": "object",
+            "properties": {
+                "ErrorMessage": {
+                    "type": "string"
+                },
+                "StatusCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pkg.Book": {
+            "description": "book Entity",
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "createdDate": {
+                    "description": "string in UTC format",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "releaseDate": {
+                    "description": "string in UTC format",
+                    "type": "string"
+                }
+            }
+        },
+        "pkg.BookDTO": {
+            "description": "Entity to create book",
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "releaseDate": {
+                    "description": "string in UTC format",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
