@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "book/docs"
+	"book/internal/app"
 	"github.com/go-chi/chi"
 	_ "github.com/lib/pq"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
@@ -25,12 +26,17 @@ import (
 // @BasePath /
 func main() {
 
+	cfg, err := app.NewConfig()
+	if err != nil {
+		panic(err)
+	}
+
 	swaggerRoute := chi.NewRouter()
 
 	swaggerRoute.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:1323/swagger/doc.json"), //The url pointing to API definition
+		httpSwagger.URL(cfg.Swagger.Url), //The url pointing to API definition
 	))
-	err := http.ListenAndServe(":1323", swaggerRoute)
+	err = http.ListenAndServe(cfg.Swagger.Port, swaggerRoute)
 	if err != nil {
 		log.Fatal("SERVER INIT ERROR") // TODO ADD LOGGER
 	}
