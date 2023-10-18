@@ -2,8 +2,8 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -33,13 +33,13 @@ func Accepted(
 
 	rsp, err := json.Marshal(msg)
 	if err != nil {
-		fmt.Println("got marshaling error", err) // TODO ADD LOGGER
+		log.Debug("got marshaling error")
 	}
 	setDefaultHeaders(writer)
 	writer.WriteHeader(http.StatusOK)
 	_, err = writer.Write(rsp)
 	if err != nil {
-		fmt.Println("got write error") // TODO ADD LOGGER
+		log.Debug("got write error")
 	}
 }
 
@@ -48,14 +48,14 @@ func Response(
 	entity interface{}) {
 	rsp, err := json.Marshal(entity)
 	if err != nil {
-		MarshallError(w)
+		log.Debug("got marshal error")
 	}
 	setDefaultHeaders(w)
 	w.WriteHeader(http.StatusOK)
 	if entity != nil {
 		_, err = w.Write(rsp)
 		if err != nil {
-			fmt.Println("got write error") // TODO ADD LOGGER
+			log.Debug("got write error")
 		}
 	}
 
@@ -72,13 +72,13 @@ func ResponseWithError(
 	}
 	rsp, err := json.Marshal(msg)
 	if err != nil {
-		fmt.Println("got marshaling error", err) // TODO ADD LOGGER
+		log.Debug("got marshaling error")
 	}
 	setDefaultHeaders(writer)
 	writer.WriteHeader(statusCode)
 	_, err = writer.Write(rsp)
 	if err != nil {
-		fmt.Println("got write error") // TODO ADD LOGGER
+		log.Debug("got write error")
 	}
 }
 
@@ -88,15 +88,27 @@ func setDefaultHeaders(w http.ResponseWriter) {
 	}
 }
 
-func UnmarshallError(w http.ResponseWriter) {
+func UnmarshallError(handlerName string, w http.ResponseWriter) {
+	log.WithFields(log.Fields{
+		"handlerName": handlerName,
+	}).Debug("UnmarshallError")
+
 	ResponseWithError(w, http.StatusBadRequest, "unmarshall error")
 }
 
-func MarshallError(w http.ResponseWriter) {
+func MarshallError(handlerName string, w http.ResponseWriter) {
+	log.WithFields(log.Fields{
+		"handlerName": handlerName,
+	}).Debug("MarshallError")
+
 	ResponseWithError(w, http.StatusBadRequest, "marshall error")
 }
 
-func AlreadyExist(w http.ResponseWriter) {
+func AlreadyExist(handlerName string, w http.ResponseWriter) {
+	log.WithFields(log.Fields{
+		"handlerName": handlerName,
+	}).Debug("AlreadyExist")
+
 	ResponseWithError(w, http.StatusConflict, "entity already exists")
 }
 

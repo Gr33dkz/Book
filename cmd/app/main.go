@@ -9,9 +9,16 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
+	"os"
 )
+
+func init() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.DebugLevel)
+}
 
 func main() {
 	cfg, err := app.NewConfig()
@@ -23,11 +30,13 @@ func main() {
 		cfg.Database.DriverName, makeDsn(&cfg.Database),
 	) // TODO MOVE TO CONNECTIONS DIR
 	if err != nil {
-		fmt.Println("CONNECTION TO DB ERROR", err) // TODO ADD LOGGER
+		log.Fatal("connection open error", err)
+		panic(err)
 	}
 	err = db.Ping()
 	if err != nil {
-		fmt.Println("DB ERROR", err) // TODO ADD LOGGER
+		log.Fatal("connection to db error ", err)
+		panic(err)
 	}
 
 	st := repository.NewRepo(db)
@@ -36,11 +45,12 @@ func main() {
 	mux := handler.Register()
 	hh := cors.AllowAll().Handler(mux)
 
-	err = http.ListenAndServe(":8080", hh) // TODO ADD LOGGER
+	log.WithField("port", cfg.Service.Port).Info("Server started at")
+	err = http.ListenAndServe(cfg.Service.Port, hh)
 	if err != nil {
-		log.Fatal("SERVER INIT ERROR", err) // TODO ADD LOGGER
+		log.Fatal("service init error", err)
+		panic(err)
 	}
-
 }
 
 func makeDsn(dbCfg *app.DatabaseConfig) string {
@@ -48,5 +58,3 @@ func makeDsn(dbCfg *app.DatabaseConfig) string {
 		dbCfg.HostName, dbCfg.Port, dbCfg.UserName, dbCfg.DbName, dbCfg.SslMode, dbCfg.Password)
 	return dsn
 }
-
-// TODO ADD ALL DEFINIONS IN RUN FILE

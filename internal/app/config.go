@@ -6,8 +6,14 @@ import (
 )
 
 type Config struct {
+	Service  ServiceConfig
 	Database DatabaseConfig
 	Swagger  SwaggerConfig
+}
+
+type ServiceConfig struct {
+	Host string `env:"HOST_NAME" default:"localhost"`
+	Port string `env:"PORT" default:":8080"`
 }
 
 type DatabaseConfig struct {
