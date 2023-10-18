@@ -5,8 +5,8 @@ import (
 	"book/internal/app"
 	"github.com/go-chi/chi"
 	_ "github.com/lib/pq"
+	log "github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
-	"log"
 	"net/http"
 )
 
@@ -28,6 +28,7 @@ func main() {
 
 	cfg, err := app.NewConfig()
 	if err != nil {
+		log.Fatal("config reading error")
 		panic(err)
 	}
 
@@ -38,6 +39,7 @@ func main() {
 	))
 	err = http.ListenAndServe(cfg.Swagger.Port, swaggerRoute)
 	if err != nil {
-		log.Fatal("SERVER INIT ERROR") // TODO ADD LOGGER
+		log.Fatal("swagger service init error")
+		panic(err)
 	}
 }

@@ -6,7 +6,8 @@ import (
 	"book/internal/service"
 	"book/pkg"
 	"encoding/json"
-	"fmt"
+	log "github.com/sirupsen/logrus"
+
 	//_ "github.com/go-chi/chi"
 	//_ "github.com/swaggo/http-swagger/v2"
 	"io"
@@ -52,18 +53,19 @@ func (h *Handler) Register() *http.ServeMux {
 // @Response 200 object pkg.Book "Response entity"
 // @Router /book [get]
 func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
+	handlerName := "handleBooks"
 	switch r.Method {
 	case http.MethodPost:
 		rbook := pkg.BookDTO{}
 		bytes, err := readBody(r)
 		err = json.Unmarshal(bytes, &rbook)
 		if err != nil {
-			data.UnmarshallError(w)
+			data.UnmarshallError(handlerName, w)
 			return
 		}
 		err = h.service.CreateBook(data.GenerateId(), rbook)
 		if err != nil {
-			data.AlreadyExist(w)
+			data.AlreadyExist(handlerName, w)
 			return
 		}
 		data.Accepted(w, "")
@@ -74,12 +76,14 @@ func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
 		if len(books) == 0 {
 			_, err := w.Write(empt)
 			if err != nil {
-				fmt.Println("error")
+				data.MarshallError(handlerName, w)
+				return
 			}
 		}
 		data.Response(w, books)
 
 	default:
+		log.WithField("handlerName", handlerName)
 		data.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
 	}
 }
@@ -94,18 +98,19 @@ func (h *Handler) handleBooks(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 object http.ErrorMessage "Not found"
 // @Router /book/{id} [get]
 func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
+	handlerName := "handleBooksWithId"
 	id := r.URL.Path
 	switch r.Method {
 	case http.MethodDelete:
 		err := h.service.DeleteBook(id)
 		if err != nil {
-			data.ResponseWithError(w, http.StatusBadRequest, "DELETE ERROR") // TODO Создать Структуру Ошибки и пробрасывать сообщения
+			data.ResponseWithError(w, http.StatusBadRequest, "Delete error")
 		}
 		data.Accepted(w, http.StatusText(http.StatusOK))
 	case http.MethodGet:
 		b, err := h.service.GetBook(id)
 		if err != nil {
-			data.ResponseWithError(w, http.StatusNotFound, "Not found") // TODO Создать Структуру Ошибки и пробрасывать сообщения
+			data.ResponseWithError(w, http.StatusNotFound, "Not found")
 			return
 		}
 		data.Response(w, b)
@@ -114,7 +119,7 @@ func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
 		bytes, err := readBody(r)
 		err = json.Unmarshal(bytes, &rbook)
 		if err != nil {
-			data.UnmarshallError(w)
+			data.UnmarshallError(handlerName, w)
 			return
 		}
 		err = h.service.UpdateBook(id, rbook)
@@ -124,6 +129,7 @@ func (h *Handler) handleBooksWithId(w http.ResponseWriter, r *http.Request) {
 		}
 		data.Accepted(w, http.StatusText(http.StatusOK))
 	default:
+		log.WithField("handlerName", handlerName)
 		data.ResponseWithError(w, http.StatusInternalServerError, "Unknown route")
 	}
 }

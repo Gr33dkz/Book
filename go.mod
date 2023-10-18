@@ -24,6 +24,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mcuadros/go-defaults v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
